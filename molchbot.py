@@ -109,14 +109,13 @@ class ZarosMolchBot(ZarosBot):
             #    self.mouse.move_to(self.win.cp_tabs[3].random_point())
             #    self.mouse.click()
 
-            startfishes = self.get_all_tagged_in_rect(self.win.game_view, clr.CYAN)
-            if startfishes:  # If there are fish pool in the game view
-                fishes = self.get_all_tagged_in_rect(self.win.game_view, clr.CYAN)
-                self.get_nearest_tag(clr.CYAN)
-                self.log_msg("Fishing...")
-                for fish in fishes:
+
+
+            pools = self.get_all_tagged_in_rect(self.win.game_view, clr.CYAN)
+            for fish in pools:
+                if fish := self.get_nearest_tag(clr.CYAN):
                     n = 0
-                    self.get_nearest_tag(clr.CYAN)
+                    self.log_msg("Fishing...")
                     self.mouse.move_to(fish.random_point())
                     if not self.mouseover_text(contains="Catch"):
                         continue
@@ -130,7 +129,7 @@ class ZarosMolchBot(ZarosBot):
                         if n >= 12:
                             self.mouse.click()
                             n = 0
-                    time.sleep(random.uniform(1.2,1.8))
+                time.sleep(random.uniform(1.2,1.8))
 
 
 
