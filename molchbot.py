@@ -89,7 +89,7 @@ class ZarosMolchBot(ZarosBot):
         commontench_img = imsearch.BOT_IMAGES.joinpath("items", "Commontench.png")
         mottledeel_img = imsearch.BOT_IMAGES.joinpath("items", "Mottledeel.png")
         greatersiren_img = imsearch.BOT_IMAGES.joinpath("items", "Greatersiren.png")
-        #knife_img = imsearch.BOT_IMAGES.joinpath("items", "knife.png")
+        knife_img = imsearch.BOT_IMAGES.joinpath("items", "knife.png")
         #knife := imsearch.search_img_in_rect(knife_img, self.win.control_panel)
 
 
@@ -108,10 +108,15 @@ class ZarosMolchBot(ZarosBot):
             x, y = self.win.inventory_slots[-1].get_center()  # get pixel position of last slot
             self.empty_slot_clr = pag.pixel(x, y)
 
+#Debug options for full inventory checks. 
 #            fullinv = self.get_all_tagged_in_rect(self.win.inventory_slots[27], clr.CYAN)
 #                   if fullinv:
 #            self.__fish_chunks()
 
+#            bluegill_img = imsearch.BOT_IMAGES.joinpath("items", "Bluegill.png")
+#            fullinv = imsearch.search_img_in_rect(bluegill_img, self.win.inventory_slots[-1])
+#            if fullinv:
+#                self.__fish_chunks()
 
 # TODO: Optimize the fishing pool search so you don't run all over the fucking island.
             #This debugs the issue of having the knife selected and not being able to fish.
@@ -151,6 +156,7 @@ class ZarosMolchBot(ZarosBot):
         x, y = self.win.inventory_slots[-1].get_center()
         if pag.pixel(x, y) != self.empty_slot_clr:
             self.__fish_chunks()
+        #Debug scripts for alternate full inventory check.
         #bluegill_img = imsearch.BOT_IMAGES.joinpath("items", "Bluegill.png")
         #fullinv = imsearch.search_img_in_rect(bluegill_img, self.win.inventory_slots[-1])
         #fullinv = self.get_all_tagged_in_rect(self.win.inventory_slots[-1], clr.CYAN)
@@ -188,6 +194,8 @@ class ZarosMolchBot(ZarosBot):
                     self.mouse.click()
                     self.mouse.move_to(self.win.inventory_slots[-2].random_point())
                     time.sleep(random.uniform(0.2,0.3))
+
+        #A debug to also check if the third to last slot is occupied. Not necessary.
 #            self.mouse.move_to(self.win.inventory_slots[-3].random_point())
 #            while self.mouseover_text(contains="Bluegill") \
 #                or self.mouseover_text(contains="Common") \
@@ -198,6 +206,7 @@ class ZarosMolchBot(ZarosBot):
 #                    self.mouse.click()
 #                    self.mouse.move_to(self.win.inventory_slots[-3].random_point())
 #                    time.sleep(random.uniform(0.4,0.7))
+
             while bluegill_inv := imsearch.search_img_in_rect(bluegill_img, self.win.control_panel):
                     self.mouse.move_to(knife.random_point())
                     if not self.mouseover_text(contains="Knife"):
