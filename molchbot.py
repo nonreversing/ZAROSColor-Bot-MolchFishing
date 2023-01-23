@@ -115,16 +115,21 @@ class ZarosMolchBot(ZarosBot):
                 self.get_nearest_tag(clr.CYAN)
                 self.log_msg("Fishing...")
                 for fish in fishes:
+                    n = 0
                     self.get_nearest_tag(clr.CYAN)
                     self.mouse.move_to(fish.random_point())
                     if not self.mouseover_text(contains="Catch"):
                         continue
                     self.mouse.click()
+                    if self.__inv_full():
+                        self.__fish_chunks()
                     #Helps synchronize your movements to cormorant travel time.
                     while self.mouseover_text(contains="Catch"):
                         time.sleep(0.2)
-                    if self.__inv_full():
-                        self.__fish_chunks()
+                        n += 1
+                        if n >= 12:
+                            self.mouse.click()
+                            n = 0
                     time.sleep(random.uniform(1.2,1.8))
 
 
