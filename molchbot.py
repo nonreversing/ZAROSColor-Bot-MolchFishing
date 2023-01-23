@@ -3,10 +3,12 @@ import time
 import utilities.color as clr
 import utilities.random_util as rd
 import utilities.imagesearch as imsearch
+import pyautogui as pag
 from model.bot import BotStatus
 from model.zaros.zaros_bot import ZarosBot
 from utilities.api.morg_http_client import MorgHTTPSocket
 from utilities.api.status_socket import StatusSocket
+
 
 
 import random
@@ -73,6 +75,7 @@ class ZarosMolchBot(ZarosBot):
         self.log_msg("Selecting inventory...")
         self.mouse.move_to(self.win.cp_tabs[3].random_point())
         self.mouse.click()
+
     # These aren't necessary unless you need the script to read a specific chat.
     #    self.log_msg("Selecting game chat...")
     #    self.mouse.move_to(self.win.chat_tabs[0].random_point())
@@ -80,12 +83,15 @@ class ZarosMolchBot(ZarosBot):
     #    self.mouse.move_to(self.win.chat_tabs[1].random_point())
     #    self.mouse.click()
 
-        # Defines image search for knife and bluegill.
+        # Defines image search for knife and fish.
 
-        #bluegill_img = imsearch.BOT_IMAGES.joinpath("items", "Bluegill.png")
+        bluegill_img = imsearch.BOT_IMAGES.joinpath("items", "Bluegill.png")
+        commontench_img = imsearch.BOT_IMAGES.joinpath("items", "Commontench.png")
+        mottledeel_img = imsearch.BOT_IMAGES.joinpath("items", "Mottledeel.png")
+        greatersiren_img = imsearch.BOT_IMAGES.joinpath("items", "Greatersiren.png")
         #knife_img = imsearch.BOT_IMAGES.joinpath("items", "knife.png")
         #knife := imsearch.search_img_in_rect(knife_img, self.win.control_panel)
-        #bluegill := imsearch.search_img_in_rect(bluegill_img, self.win.control_panel)
+
 
         start_time = time.time()
         end_time = self.running_time * 60
@@ -95,10 +101,23 @@ class ZarosMolchBot(ZarosBot):
             if rd.random_chance(probability=0.05) and self.take_breaks:
                 self.take_break(max_seconds=23, fancy=True)
 
-            if rd.random_chance(probability=.07):
+            # 8% chance to convert fish to chunks early.
+            if rd.random_chance(probability=.08):
                 self.__fish_chunks()
 
+            x, y = self.win.inventory_slots[-1].get_center()  # get pixel position of last slot
+            self.empty_slot_clr = pag.pixel(x, y)
+
+#            fullinv = self.get_all_tagged_in_rect(self.win.inventory_slots[27], clr.CYAN)
+#                   if fullinv:
+#            self.__fish_chunks()
+
+
 # TODO: Optimize the fishing pool search so you don't run all over the fucking island.
+            #This debugs the issue of having the knife selected and not being able to fish.
+            if self.mouseover_text(contains="Knife"):
+                self.mouse.move_to(self.win.cp_tabs[3].random_point())
+                self.mouse.click()
 
             startfishes = self.get_all_tagged_in_rect(self.win.game_view, clr.CYAN)
             if startfishes:  # If there are fish pool in the game view
@@ -111,11 +130,13 @@ class ZarosMolchBot(ZarosBot):
                     if not self.mouseover_text(contains="Catch"):
                         continue
                     self.mouse.click()
+                    if self.__inv_full():
+                        self.__fish_chunks()
                     time.sleep(random.uniform(2.8,3.2))
 
 
 
-        self.update_progress((time.time() - start_time) / end_time)
+            self.update_progress((time.time() - start_time) / end_time)
 
         self.update_progress(1)
         self.__logout("Finished.")
@@ -126,6 +147,16 @@ class ZarosMolchBot(ZarosBot):
         self.logout()
         self.set_status(BotStatus.STOPPED)
 
+    def __inv_full(self):
+        x, y = self.win.inventory_slots[-1].get_center()
+        if pag.pixel(x, y) != self.empty_slot_clr:
+            self.__fish_chunks()
+        #bluegill_img = imsearch.BOT_IMAGES.joinpath("items", "Bluegill.png")
+        #fullinv = imsearch.search_img_in_rect(bluegill_img, self.win.inventory_slots[-1])
+        #fullinv = self.get_all_tagged_in_rect(self.win.inventory_slots[-1], clr.CYAN)
+        #while fullinv:
+        #    self.__fish_chunks()
+
     def __fish_chunks(self):
         self.log_msg("Cutting fish into chunks...")
 ## Make sure you have the .png's listed downloaded into the ./src/images/bot/items folder.
@@ -135,6 +166,38 @@ class ZarosMolchBot(ZarosBot):
         mottledeel_img = imsearch.BOT_IMAGES.joinpath("items", "Mottledeel.png")
         greatersiren_img = imsearch.BOT_IMAGES.joinpath("items", "Greatersiren.png")
         if knife := imsearch.search_img_in_rect(knife_img, self.win.control_panel):
+            self.mouse.move_to(knife.random_point())
+            self.mouse.click()
+            self.mouse.move_to(self.win.inventory_slots[-1].random_point())
+            while self.mouseover_text(contains="Bluegill")\
+                or self.mouseover_text(contains="Common")\
+                or self.mouseover_text(contains="Greater")\
+                or self.mouseover_text(contains="Mottled"):
+                    self.mouse.click()
+                    self.mouse.move_to(knife.random_point())
+                    self.mouse.click()
+                    self.mouse.move_to(self.win.inventory_slots[-1].random_point())
+                    time.sleep(random.uniform(0.2,0.3))
+            self.mouse.move_to(self.win.inventory_slots[-2].random_point())
+            while self.mouseover_text(contains="Bluegill") \
+                or self.mouseover_text(contains="Common") \
+                or self.mouseover_text(contains="Greater") \
+                or self.mouseover_text(contains="Mottled"):
+                    self.mouse.click()
+                    self.mouse.move_to(knife.random_point())
+                    self.mouse.click()
+                    self.mouse.move_to(self.win.inventory_slots[-2].random_point())
+                    time.sleep(random.uniform(0.2,0.3))
+#            self.mouse.move_to(self.win.inventory_slots[-3].random_point())
+#            while self.mouseover_text(contains="Bluegill") \
+#                or self.mouseover_text(contains="Common") \
+#                or self.mouseover_text(contains="Greater") \
+#                or self.mouseover_text(contains="Mottled"):
+#                    self.mouse.click()
+#                    self.mouse.move_to(knife.random_point())
+#                    self.mouse.click()
+#                    self.mouse.move_to(self.win.inventory_slots[-3].random_point())
+#                    time.sleep(random.uniform(0.4,0.7))
             while bluegill_inv := imsearch.search_img_in_rect(bluegill_img, self.win.control_panel):
                     self.mouse.move_to(knife.random_point())
                     if not self.mouseover_text(contains="Knife"):
@@ -144,7 +207,7 @@ class ZarosMolchBot(ZarosBot):
                     if not self.mouseover_text(contains="Knife"):
                         continue
                     self.mouse.click()
-                    time.sleep(random.uniform(0.7,0.9))
+                    time.sleep(random.uniform(0.8,1.1))
             while mottledeel_inv := imsearch.search_img_in_rect(mottledeel_img, self.win.control_panel):
                     self.mouse.move_to(knife.random_point())
                     if not self.mouseover_text(contains="Knife"):
@@ -154,7 +217,7 @@ class ZarosMolchBot(ZarosBot):
                     if not self.mouseover_text(contains="Knife"):
                         continue
                     self.mouse.click()
-                    time.sleep(random.uniform(0.7,0.9))
+                    time.sleep(random.uniform(0.8,1.1))
             while commontench_inv := imsearch.search_img_in_rect(commontench_img, self.win.control_panel):
                     self.mouse.move_to(knife.random_point())
                     if not self.mouseover_text(contains="Knife"):
@@ -164,7 +227,7 @@ class ZarosMolchBot(ZarosBot):
                     if not self.mouseover_text(contains="Knife"):
                         continue
                     self.mouse.click()
-                    time.sleep(random.uniform(0.7,0.9))
+                    time.sleep(random.uniform(0.8,1.1))
             while greatersiren_inv := imsearch.search_img_in_rect(greatersiren_img, self.win.control_panel):
                     self.mouse.move_to(knife.random_point())
                     if not self.mouseover_text(contains="Knife"):
@@ -174,7 +237,7 @@ class ZarosMolchBot(ZarosBot):
                     if not self.mouseover_text(contains="Knife"):
                         continue
                     self.mouse.click()
-                    time.sleep(random.uniform(0.7,0.9))
+                    time.sleep(random.uniform(0.8,1.1))
 
 
 
