@@ -30,7 +30,7 @@ class ZarosMolchBot(ZarosBot):
         see, and the possible values the user can select. The key is used in the save_options function to
         unpack the dictionary of options after the user has selected them.
         """
-        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 300)
+        self.options_builder.add_slider_option("running_time", "How long to run (minutes)?", 1, 360)
         self.options_builder.add_checkbox_option("take_breaks", "Take breaks?", [" "])
 
 
@@ -112,10 +112,11 @@ class ZarosMolchBot(ZarosBot):
 
 
             pools = self.get_all_tagged_in_rect(self.win.game_view, clr.CYAN)
+            self.log_msg("Fishing...")
             for fish in pools:
                 if fish := self.get_nearest_tag(clr.CYAN):
                     n = 0
-                    self.log_msg("Fishing...")
+
                     self.mouse.move_to(fish.random_point())
                     if not self.mouseover_text(contains="Catch"):
                         continue
